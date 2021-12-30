@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Music Saver</title>
+    <script>
+      function landingPage() {
+          fetch("http://localhost:8080/api/login")
+          .then((response) => response.text())
+          .then(response => {
+            window.location.replace(response);
+          })
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>Music Saver</h1>
+    <button type="button" onClick="landingPage()">Log in with Spotify</button>
+  </body>
+</html>

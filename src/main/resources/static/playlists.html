@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Music Saver</title>
+    <script>
+      function usersPlaylists() {
+        fetch("http://localhost:8080/api/playlists")
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+        })
+      }
+    </script>
+  </head>
+
+  <body onload="usersPlaylists()">
+    <h1>User's playlists (in the console)</h1>
+  </body>
+</html>
