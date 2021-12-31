@@ -6,23 +6,23 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * As a Singleton.
+ * KeyReader as a Singleton.
  */
-public class Keys {
+public class KeyReader {
 
-    private static final Keys keys = new Keys();
+    private static final KeyReader keys = new KeyReader();
 
     private String CLIENT_ID;
     private String CLIENT_SECRET;
 
-    private Keys() {
-        FileReader reader = null;
+    private KeyReader() {
         Properties props = new Properties();
+
         try {
             File file = new File(
 	                getClass().getClassLoader().getResource("./static/spotify.properties").getFile()
             );
-            reader = new FileReader(file);
+            FileReader reader = new FileReader(file);
             props.load(reader);      
         } catch(IOException e) {
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class Keys {
         CLIENT_SECRET = props.getProperty("CLIENT_SECRET");
     }
 
-    public static Keys getInstance() {
+    public static KeyReader getInstance() {
         return keys;
     }
 

@@ -4,7 +4,7 @@
     <title>Music Saver</title>
     <script>
       function usersPlaylists() {
-        fetch("http://localhost:8080/api/playlists")
+        fetch("http://localhost:8080/api/all-playlists")
         .then(response => response.json())
         .then(data => {
           console.log(data)

@@ -1,6 +1,9 @@
 package com.example.musicSaver;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,9 +13,11 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.User;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
+import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,8 +39,8 @@ public class AuthenticationController {
 	private static final URI REDIRECT_URI = SpotifyHttpManager.makeUri("http://localhost:8080/api/user-code");
 
 	private static final SpotifyApi SPOTIFY_API = new SpotifyApi.Builder()
-										.setClientId(Keys.getInstance().getClientId())
-										.setClientSecret(Keys.getInstance().getClientSecret())
+										.setClientId(KeyReader.getInstance().getClientId())
+										.setClientSecret(KeyReader.getInstance().getClientSecret())
 										.setRedirectUri(REDIRECT_URI)
 										.build();
 
@@ -51,14 +56,14 @@ public class AuthenticationController {
 
 	@GetMapping("/user-code")
 	public String getSpotifyUserCode(@RequestParam Optional<String> code, HttpServletResponse response) throws IOException {
-		String userCode = code.orElseGet(() -> "not provided");	//change this
+		String userCode = code.orElseThrow(() -> new IllegalArgumentException("Wrong code returned."));
 		AuthorizationCodeRequest authCode = SPOTIFY_API.authorizationCode(userCode).build();
 		
 		try {
 			final AuthorizationCodeCredentials credentials = authCode.execute();
 			SPOTIFY_API.setAccessToken(credentials.getAccessToken());
 			SPOTIFY_API.setRefreshToken(credentials.getRefreshToken());
-
+			
 			System.out.println("Expires in: " + credentials.getExpiresIn());
 		} catch(IOException | ParseException | SpotifyWebApiException e) {
 			e.printStackTrace();
@@ -68,10 +73,29 @@ public class AuthenticationController {
 		return SPOTIFY_API.getAccessToken();
 	}
 
-	@GetMapping("/playlists")
-	public PlaylistSimplified[] getUserPlaylists() {	// make async
+	@GetMapping("/all-playlists")
+	public Object[] getAllUserPlaylists() {
+		List<PlaylistSimplified> allPlaylists = new ArrayList<PlaylistSimplified>();
+		
+		int offset = 0;
+		do {
+			Collections.addAll(allPlaylists, getUsersPlaylistsWithOffset(offset));
+			offset += 20;
+		} while(allPlaylists.size() == offset);
+		
+		String usersId = getUsersId();
+		Object[] playlistOwnedByUser = allPlaylists.stream()
+											.filter(playlist -> usersId.equals(playlist.getOwner().getId()))
+											.toArray();
+		return playlistOwnedByUser;
+	}
+
+	//maybe dont make it a REST
+	//@GetMapping("/playlists")
+	private PlaylistSimplified[] getUsersPlaylistsWithOffset(int offset) {
 		GetListOfCurrentUsersPlaylistsRequest usersPlaylistsRequest = SPOTIFY_API.getListOfCurrentUsersPlaylists()
-															.limit(50)
+															.limit(20)
+															.offset(offset)
 															.build();
 
 		Paging<PlaylistSimplified> usersPlaylists = null;
@@ -80,7 +104,20 @@ public class AuthenticationController {
 		} catch(IOException | ParseException | SpotifyWebApiException e) {
 			e.printStackTrace();
 		}
-		PlaylistSimplified[] playlists = usersPlaylists.getItems();
 		return usersPlaylists.getItems();
 	}
+
+	private String getUsersId() {
+		GetCurrentUsersProfileRequest userRequest = SPOTIFY_API.getCurrentUsersProfile().build();
+
+		User user = null;
+		try {
+			user = userRequest.execute();
+		} catch(IOException | ParseException | SpotifyWebApiException e) {
+			e.printStackTrace();
+		}
+
+		return user.getId();
+	}
+
 }
