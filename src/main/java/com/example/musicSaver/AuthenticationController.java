@@ -3,6 +3,7 @@ package com.example.musicSaver;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletResponse;
@@ -82,16 +83,10 @@ public class AuthenticationController {
 			Collections.addAll(allPlaylists, getUsersPlaylistsWithOffset(offset));
 			offset += 20;
 		} while(allPlaylists.size() == offset);
-		
-		String usersId = getUsersId();
-		Object[] playlistOwnedByUser = allPlaylists.stream()
-											.filter(playlist -> usersId.equals(playlist.getOwner().getId()))
-											.toArray();
-		return playlistOwnedByUser;
+
+		return usersPlaylistsSorted(allPlaylists);		
 	}
 
-	//maybe dont make it a REST
-	//@GetMapping("/playlists")
 	private PlaylistSimplified[] getUsersPlaylistsWithOffset(int offset) {
 		GetListOfCurrentUsersPlaylistsRequest usersPlaylistsRequest = SPOTIFY_API.getListOfCurrentUsersPlaylists()
 															.limit(20)
@@ -105,6 +100,16 @@ public class AuthenticationController {
 			e.printStackTrace();
 		}
 		return usersPlaylists.getItems();
+	}
+
+	private Object[] usersPlaylistsSorted(List<PlaylistSimplified> allPlaylists) {
+		String usersId = getUsersId();
+		Object[] playlistOwnedByUser = allPlaylists.stream()
+											.filter(playlist -> usersId.equals(playlist.getOwner().getId()))
+											.toArray();
+		
+		Arrays.sort(playlistOwnedByUser, new PlaylistComparator());
+		return playlistOwnedByUser;
 	}
 
 	private String getUsersId() {
