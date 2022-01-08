@@ -11,11 +11,25 @@ function usersPlaylists() {
 
 function showPlaylists(data) {
   var playlists = document.createElement('article');
-
+  
+  
   for(var i=0; i<data.length; i++) {
-    var playlist = document.createElement('p');
-    playlist.textContent = data[i].name;
-    playlists.appendChild(playlist);
+    var row = document.createElement('div');
+
+    var name = document.createElement('p');
+    name.textContent = data[i].name;
+
+    var cover = document.createElement('img');
+    var images = data[i].images
+    if (images.length == 3) {
+      cover.src = images[2].url;
+    } else {
+      cover.src = "http://localhost:8080/images/default.png";
+    } 
+
+    row.appendChild(cover);
+    row.appendChild(name);
+    playlists.appendChild(row);
   }
 
   section.appendChild(playlists);
