@@ -10,7 +10,7 @@ import java.util.Properties;
  */
 public class KeyReader {
 
-    private static final KeyReader keys = new KeyReader();
+    private static final KeyReader KEYS = new KeyReader();
 
     private String CLIENT_ID;
     private String CLIENT_SECRET;
@@ -33,7 +33,7 @@ public class KeyReader {
     }
 
     public static KeyReader getInstance() {
-        return keys;
+        return KEYS;
     }
 
     public String getClientId() {

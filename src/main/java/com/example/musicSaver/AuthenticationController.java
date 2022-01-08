@@ -47,7 +47,7 @@ public class AuthenticationController {
 	@GetMapping("/login")
 	public String spotifyLogin() {
 		AuthorizationCodeUriRequest request = SPOTIFY_API.authorizationCodeUri()
-						.scope("user-read-private, user-read-email, user-top-read")
+						.scope("user-read-private, user-read-email, playlist-read-private")
 						.show_dialog(true)
 						.build();
 		final URI uri = request.execute();
@@ -69,7 +69,7 @@ public class AuthenticationController {
 			e.printStackTrace();
 		}
 		
-		response.sendRedirect("http://localhost:8080/playlists.html");
+		response.sendRedirect("http://localhost:8080/html/playlists.html");
 		return SPOTIFY_API.getAccessToken();
 	}
 
