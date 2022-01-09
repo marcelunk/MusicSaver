@@ -1,0 +1,19 @@
+.playlist {
+    background-color: rgb(39, 177, 177);
+    height: 60px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.name {
+    float: left;
+    padding-left: 10px;
+}
+
+.cover {
+    float: left;
+}
+
+body {
+    background-color: bisque;
+}

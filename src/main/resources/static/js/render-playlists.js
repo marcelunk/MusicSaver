@@ -15,11 +15,14 @@ function showPlaylists(data) {
   
   for(var i=0; i<data.length; i++) {
     var row = document.createElement('div');
+    row.classList.add('playlist');
 
     var name = document.createElement('p');
+    name.classList.add('name');
     name.textContent = data[i].name;
 
     var cover = document.createElement('img');
+    cover.classList.add('cover');
     var images = data[i].images
     if (images.length == 3) {
       cover.src = images[2].url;
