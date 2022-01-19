@@ -16,6 +16,8 @@ function showPlaylists(data) {
   for(var i=0; i<data.length; i++) {
     var row = document.createElement('div');
     row.classList.add('playlist');
+    row.id = data[i].id;
+    row.onclick = getTracks;
 
     var name = document.createElement('p');
     name.classList.add('name');
@@ -28,7 +30,7 @@ function showPlaylists(data) {
       cover.src = images[2].url;
     } else {
       cover.src = "http://localhost:8080/images/default.png";
-    } 
+    }
 
     row.appendChild(cover);
     row.appendChild(name);
@@ -36,4 +38,17 @@ function showPlaylists(data) {
   }
 
   section.appendChild(playlists);
+}
+
+function getTracks() {
+  fetch("http://localhost:8080/api/selected-playlist?playlist_id=" + this.id)
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    loadPlaylist();
+  })
+}
+
+function loadPlaylist() {
+  console.log("start loading playlist");
 }
