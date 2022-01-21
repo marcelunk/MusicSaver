@@ -17,7 +17,7 @@ function showPlaylists(data) {
     var row = document.createElement('div');
     row.classList.add('playlist');
     row.id = data[i].id;
-    row.onclick = getTracks;
+    row.onclick = downloadTracks;
 
     var name = document.createElement('p');
     name.classList.add('name');
@@ -40,7 +40,7 @@ function showPlaylists(data) {
   section.appendChild(playlists);
 }
 
-function getTracks() {
+function downloadTracks() {
   fetch("http://localhost:8080/api/selected-playlist?playlist_id=" + this.id)
   .then(response => response.json())
   .then(data => {

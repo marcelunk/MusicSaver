@@ -1,5 +1,7 @@
 package com.example.musicSaver;
 
+import static com.example.musicSaver.PlaylistWriterUtil.*;
+
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
@@ -12,7 +14,6 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
-import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
@@ -22,10 +23,7 @@ import se.michaelthelin.spotify.requests.authorization.authorization_code.Author
 import se.michaelthelin.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
-import se.michaelthelin.spotify.model_objects.specification.Track;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 
@@ -135,48 +133,12 @@ public class AuthenticationController {
 
 	private String getUsersId() {
 		GetCurrentUsersProfileRequest userRequest = SPOTIFY_API.getCurrentUsersProfile().build();
-
 		User user = null;
 		try {
 			user = userRequest.execute();
 		} catch(IOException | ParseException | SpotifyWebApiException e) {
 			e.printStackTrace();
 		}
-
 		return user.getId();
 	}
-
-	private boolean writePlaylistToFile(PlaylistTrack[] tracks) {
-		String output = tracksToString(tracks);
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(".\\src\\main\\resources\\static\\playlists\\myPlaylist.txt"))) {
-			writer.write(output);			
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	private String tracksToString(PlaylistTrack[] tracks) {
-		StringBuilder builder = new StringBuilder();
-		for(int i=0; i<tracks.length; i++) {
-			Object object = tracks[i].getTrack();
-			Track track = null;
-			if(object instanceof Track) {
-				track = (Track) object;
-			} else {
-				throw new IllegalArgumentException("Object should be of type Track but was " + object.getClass());
-			}
-			builder.append(track.getName() + ", ");
-			
-			ArtistSimplified[] artists = track.getArtists();
-			for(int j=0; j<artists.length; j++) {
-				builder.append(artists[j].getName() + " ");
-			}
-			builder.append(System.getProperty("line.separator"));
-
-		}
-		return builder.toString().trim();		
-	}
-
 }
