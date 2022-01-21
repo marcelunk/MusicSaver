@@ -44,11 +44,15 @@ function getTracks() {
   fetch("http://localhost:8080/api/selected-playlist?playlist_id=" + this.id)
   .then(response => response.json())
   .then(data => {
-    console.log(data);
-    loadPlaylist();
+    if(data) {
+      const downloadTag = document.createElement('a');     
+      downloadTag.setAttribute("href", "http://localhost:8080/playlists/myPlaylist.txt");
+      downloadTag.setAttribute("download", "myPlaylist");
+      document.body.appendChild(downloadTag);
+      downloadTag.click();
+      document.body.removeChild(downloadTag);
+    } else {
+      alert("Ups, try again!")
+    }
   })
-}
-
-function loadPlaylist() {
-  console.log("start loading playlist");
 }
