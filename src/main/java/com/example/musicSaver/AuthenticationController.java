@@ -15,12 +15,14 @@ import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
+import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.User;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
+import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import se.michaelthelin.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
@@ -91,19 +93,39 @@ public class AuthenticationController {
 		return usersPlaylistsSorted(allPlaylists);		
 	}
 
-	@GetMapping("/selected-playlist")
-	public boolean getSelectedPlaylist(@RequestParam(value="playlist_id") String playlist_id) {
-		GetPlaylistsItemsRequest request = SPOTIFY_API.getPlaylistsItems(playlist_id).build();
+	@GetMapping("/selected-playlists")
+	public boolean getSelectedPlaylists(@RequestParam(value="playlist_ids") String[] playlist_ids) {
 		
-		Paging<PlaylistTrack> tracksPaging = null;
+		for(int i=0; i<playlist_ids.length; i++) {
+			String playlistName = getPlaylistName(playlist_ids[i]);
+			PlaylistTrack[] tracks = getPlaylistTracks(playlist_ids[i]);
+			writePlaylistToFile(playlistName, tracks);
+		}
+		
+		return true;
+	}
+	
+	private String getPlaylistName(String playlist_id) {
+		GetPlaylistRequest requestPlaylist = SPOTIFY_API.getPlaylist(playlist_id).build(); 
+		Playlist playlist = null;
 		try {
-			tracksPaging = request.execute();
+			playlist = requestPlaylist.execute();
 		} catch (ParseException | IOException | SpotifyWebApiException e) {
 			e.printStackTrace();
 		}
-
+		return playlist.getName();
+	}
+	
+	private PlaylistTrack[] getPlaylistTracks(@RequestParam(value="playlist_id") String playlist_id) {
+		GetPlaylistsItemsRequest requestPlaylistItems = SPOTIFY_API.getPlaylistsItems(playlist_id).build();
+		Paging<PlaylistTrack> tracksPaging = null;
+		try {
+			tracksPaging = requestPlaylistItems.execute();
+		} catch (ParseException | IOException | SpotifyWebApiException e) {
+			e.printStackTrace();
+		}
 		PlaylistTrack[] tracks = tracksPaging.getItems();
-		return writePlaylistToFile(tracks);
+		return tracks;
 	}
 
 	private PlaylistSimplified[] getUsersPlaylistsWithOffset(int offset) {

@@ -1,4 +1,5 @@
 const section = document.querySelector('section');
+const playlistsToDownload = new Set();
 
 function usersPlaylists() {
     fetch("http://localhost:8080/api/all-playlists")
@@ -17,7 +18,8 @@ function showPlaylists(data) {
     var row = document.createElement('div');
     row.classList.add('playlist');
     row.id = data[i].id;
-    row.onclick = downloadTracks;
+    //row.onclick = downloadPlaylist;
+    row.onclick = addToDownload;
 
     var name = document.createElement('p');
     name.classList.add('name');
@@ -40,7 +42,7 @@ function showPlaylists(data) {
   section.appendChild(playlists);
 }
 
-function downloadTracks() {
+function downloadPlaylist() {
   fetch("http://localhost:8080/api/selected-playlist?playlist_id=" + this.id)
   .then(response => response.json())
   .then(data => {
@@ -55,4 +57,25 @@ function downloadTracks() {
       alert("Ups, try again!")
     }
   })
+}
+
+function downloadPlaylists() {
+  var playlist_ids = Array.from(playlistsToDownload);
+  fetch("http://localhost:8080/api/selected-playlists?playlist_ids=" + playlist_ids)
+  .then(response => response.json())
+  .then(data => {
+    if(data) {
+      alert("Worked!")
+    } else {
+      alert("Ups, try again!")
+    }
+  })
+}
+
+function addToDownload() {
+  playlistToDownload = playlistsToDownload.add(this.id);
+}
+
+function printPlaylists() {
+  for (let item of playlistsToDownload) console.log(item);
 }

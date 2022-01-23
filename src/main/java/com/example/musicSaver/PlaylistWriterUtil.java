@@ -10,9 +10,9 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 public class PlaylistWriterUtil {
 
-    public static boolean writePlaylistToFile(PlaylistTrack[] tracks) {
+    public static boolean writePlaylistToFile(String playlistName, PlaylistTrack[] tracks) {
 		String output = tracksToString(tracks);
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(".\\src\\main\\resources\\static\\playlists\\myPlaylist.txt"))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(".\\src\\main\\resources\\static\\playlists\\" + playlistName + ".txt"))) {
 			writer.write(output);			
 			return true;
 		} catch (IOException e) {
