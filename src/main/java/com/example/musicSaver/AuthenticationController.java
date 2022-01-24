@@ -4,9 +4,11 @@ import static com.example.musicSaver.PlaylistWriterUtil.*;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -95,14 +97,14 @@ public class AuthenticationController {
 
 	@GetMapping("/selected-playlists")
 	public boolean getSelectedPlaylists(@RequestParam(value="playlist_ids") String[] playlist_ids) {
-		
+		Map<String, String> playlists = new HashMap<String, String>();
+
 		for(int i=0; i<playlist_ids.length; i++) {
 			String playlistName = getPlaylistName(playlist_ids[i]);
 			PlaylistTrack[] tracks = getPlaylistTracks(playlist_ids[i]);
-			writePlaylistToFile(playlistName, tracks);
+			playlists.put(playlistName, tracksToString(tracks));
 		}
-		
-		return true;
+		return writePlaylistsToZip(playlists);
 	}
 	
 	private String getPlaylistName(String playlist_id) {

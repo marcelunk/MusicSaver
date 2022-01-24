@@ -1,14 +1,39 @@
 package com.example.musicSaver;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
 public class PlaylistWriterUtil {
+
+	public static boolean writePlaylistsToZip(Map<String, String> playlists) {
+		try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(".\\src\\main\\resources\\static\\playlists\\myArchive.zip"))) {
+			
+			Set<String> playlistNames = playlists.keySet();
+			for(String name : playlistNames) {
+				zipOut.putNextEntry(new ZipEntry(name + ".txt"));
+				String tracks = playlists.get(name);
+				byte[] tracksData = tracks.getBytes();
+				zipOut.write(tracksData, 0, tracksData.length);
+				zipOut.closeEntry();
+			}
+			zipOut.flush();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
     public static boolean writePlaylistToFile(String playlistName, PlaylistTrack[] tracks) {
 		String output = tracksToString(tracks);
@@ -21,7 +46,7 @@ public class PlaylistWriterUtil {
 		}
 	}
     
-    private static String tracksToString(PlaylistTrack[] tracks) {
+    public static String tracksToString(PlaylistTrack[] tracks) {
 		StringBuilder builder = new StringBuilder();
 		for(int i=0; i<tracks.length; i++) {
 			Object object = tracks[i].getTrack();
@@ -31,7 +56,7 @@ public class PlaylistWriterUtil {
 			} else {
 				throw new IllegalArgumentException("Object should be of type Track but was " + object.getClass());
 			}
-			builder.append(track.getName() + "- ");
+			builder.append(track.getName() + " - ");
 			
 			ArtistSimplified[] artists = track.getArtists();
 			for(int j=0; j<artists.length; j++) {
