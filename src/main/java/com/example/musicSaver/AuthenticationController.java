@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
 RestController to handle all the Spotify authentification
 **/
-
 @RestController
 @RequestMapping("/api")
 public class AuthenticationController {
@@ -96,7 +95,7 @@ public class AuthenticationController {
 	}
 
 	@GetMapping("/selected-playlists")
-	public boolean getSelectedPlaylists(@RequestParam(value="playlist_ids") String[] playlist_ids) {
+	public String getSelectedPlaylists(@RequestParam(value="playlist_ids") String[] playlist_ids) {
 		Map<String, String> playlists = new HashMap<String, String>();
 
 		for(int i=0; i<playlist_ids.length; i++) {

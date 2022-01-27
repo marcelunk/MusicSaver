@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -15,8 +16,11 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 public class PlaylistWriterUtil {
 
-	public static boolean writePlaylistsToZip(Map<String, String> playlists) {
-		try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(".\\src\\main\\resources\\static\\playlists\\myArchive.zip"))) {
+	public static String writePlaylistsToZip(Map<String, String> playlists) {
+		UUID archiveId = UUID.randomUUID();
+
+		try (ZipOutputStream zipOut = 
+			new ZipOutputStream(new FileOutputStream(".\\src\\main\\resources\\static\\playlists\\"+ archiveId.toString() +".zip"))) {
 			
 			Set<String> playlistNames = playlists.keySet();
 			for(String name : playlistNames) {
@@ -30,9 +34,9 @@ public class PlaylistWriterUtil {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
-		return true;
+		return archiveId.toString();
 	}
 
     public static boolean writePlaylistToFile(String playlistName, PlaylistTrack[] tracks) {

@@ -18,7 +18,6 @@ function showPlaylists(data) {
     var row = document.createElement('div');
     row.classList.add('playlist');
     row.id = data[i].id;
-    //row.onclick = downloadPlaylist;
     row.onclick = addToDownload;
 
     var name = document.createElement('p');
@@ -62,9 +61,20 @@ function downloadPlaylist() {
 function downloadPlaylists() {
   var playlist_ids = Array.from(playlistsToDownload);
   fetch("http://localhost:8080/api/selected-playlists?playlist_ids=" + playlist_ids)
-  .then(response => response.json())
-  .then(data => {
-    if(data) {
+  .then(response => response.text())
+  .then(archiveId => {
+    if(archiveId != null) {
+      //const url = "http://localhost:8080/playlists/" + archiveId + ".zip";
+      const url = "http://localhost:8080/playlists/Ambient.txt";
+      console.log(url);
+      console.log(archiveId);
+      const downloadTag = document.createElement('a');     
+      downloadTag.setAttribute("href", url);
+      downloadTag.setAttribute("download", archiveId);
+      document.body.appendChild(downloadTag);
+      downloadTag.click();
+      document.body.removeChild(downloadTag);
+
       alert("Worked!")
     } else {
       alert("Ups, try again!")
