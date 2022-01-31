@@ -49,7 +49,7 @@ public class PlaylistWriterUtil {
 			return false;
 		}
 	}
-    
+
     public static String tracksToString(PlaylistTrack[] tracks) {
 		StringBuilder builder = new StringBuilder();
 		for(int i=0; i<tracks.length; i++) {

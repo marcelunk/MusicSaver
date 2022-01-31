@@ -3,6 +3,8 @@ package com.example.musicSaver;
 import static com.example.musicSaver.PlaylistWriterUtil.*;
 
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -32,10 +34,12 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.hc.core5.http.ParseException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 
 /**
@@ -96,6 +100,38 @@ public class AuthenticationController {
 
 	@GetMapping("/selected-playlists")
 	public String getSelectedPlaylists(@RequestParam(value="playlist_ids") String[] playlist_ids) {
+		Map<String, String> playlists = getPlaylistsAsStrings(playlist_ids);
+		return writePlaylistsToZip(playlists);
+	}
+	
+	@GetMapping("/download-playlists")
+	public ResponseEntity<StreamingResponseBody> downloadPlaylistsAsZip(HttpServletResponse response, 
+				@RequestParam(value="playlist_ids") String[] playlistIds) {
+		Map<String, String> playlists = getPlaylistsAsStrings(playlistIds);
+
+		StreamingResponseBody responseBody = out -> {
+			try (ZipOutputStream zipStream = new ZipOutputStream(response.getOutputStream())) {
+				for(String playlistName : playlists.keySet()) {
+					ZipEntry playlist = new ZipEntry(playlistName);
+					zipStream.putNextEntry(playlist);
+					zipStream.write(playlists.get(playlistName).getBytes());
+					zipStream.closeEntry();
+				}
+				zipStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		};
+		
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=example.zip");
+		response.addHeader("Pragma", "no-cache");
+		response.addHeader("Expires", "0");
+
+		return ResponseEntity.ok(responseBody);
+	}
+	
+	private Map<String, String> getPlaylistsAsStrings(String[] playlist_ids) {
 		Map<String, String> playlists = new HashMap<String, String>();
 
 		for(int i=0; i<playlist_ids.length; i++) {
@@ -103,9 +139,10 @@ public class AuthenticationController {
 			PlaylistTrack[] tracks = getPlaylistTracks(playlist_ids[i]);
 			playlists.put(playlistName, tracksToString(tracks));
 		}
-		return writePlaylistsToZip(playlists);
+
+		return playlists;
 	}
-	
+
 	private String getPlaylistName(String playlist_id) {
 		GetPlaylistRequest requestPlaylist = SPOTIFY_API.getPlaylist(playlist_id).build(); 
 		Playlist playlist = null;
