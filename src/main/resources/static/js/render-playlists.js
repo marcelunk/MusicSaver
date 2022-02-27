@@ -87,7 +87,16 @@ function downloadPlaylists() {
   var playlist_ids = Array.from(playlistsToDownload);
   fetch("http://localhost:8080/api/download-playlists?playlist_ids=" + playlist_ids)
   .then(response => response.body)
-  .then(stream => console.log(stream))
+  .then(stream => {
+    const reader = stream.getReader();
+    reader.read().then(({ done, value }) => {
+      if(done) {
+        reader.cancel
+      } else {
+        console.log(value)
+      }
+    });
+  })
 }
 
 function addToDownload() {

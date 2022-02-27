@@ -43,7 +43,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 
 /**
-RestController to handle all the Spotify authentification
+Rest interface to handle all the Spotify authentification and communication ??? 
 **/
 @RestController
 @RequestMapping("/api")
